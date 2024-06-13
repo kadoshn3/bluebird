@@ -6,14 +6,31 @@ const fs = require('fs');
 const http = require('http');
 const path = require('path');
 const socketio = require('socket.io');
+const { Pool } = require('pg')
 
 // Initialize express app
 const app = express();
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-  })
+// PostgreSQL db configuration
+const pool = new Pool({
+    user: 'neevekadosh',
+    host: 'localhost',
+    database: 'ski_mountain_review_db',
+    port: 5432
+});
+
+// Sample query from users table and post onto app
+app.get('/', async (req, res) => {
+    try {
+        const client = await pool.connect();
+        const result = await client.query('SELECT * FROM users;');
+        client.release();
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error executing query', err);
+    }
+});
 
 // Setup config server and port
 const server_connection = {
