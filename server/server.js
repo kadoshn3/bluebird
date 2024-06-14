@@ -40,6 +40,21 @@ const server_connection = {
 
 // Create server
 const server = http.createServer(app);
+const io = socketio(server);
+
+io.on('connection', (socket) => {
+    console.log('A user connected');
+
+    socket.on('disconnect', () => {
+        console.log('user disconnected.');
+    });
+
+    socket.on('message', (msg) => {
+        console.log('message: ' + msg);
+
+        io.emit('message', msg);
+    });
+});
 
 // Run the server
 server.listen(server_connection.port, server_connection.hostname, () => {
